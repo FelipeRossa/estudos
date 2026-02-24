@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login CRU</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net">
+
+
+</head>
+
+<body class="bg-light">
+
+    <div class="container vh-100 d-flex justify-content-center align-items-center">
+        <div class="card shadow p-4" style="width: 350px;">
+            <h3 class="text-center mb-4">Login</h3>
+
+            <!-- <form id="loginForm"> -->
+                <div class="mb-3">
+                    <label class="form-label">Usuário</label>
+                    <input type="text" class="form-control" id="username" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Senha</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button id="btnLogin" type="button" class="btn btn-primary row">
+                        Entrar
+                    </button>
+                    <!-- <button id="btnGoogle" type="button" class="btn btn-secondary w-100 row">
+                        <i class="bi bi-google"></i>
+                        Entrar com google
+                    </button> -->
+                    
+                    <!-- botão googleD -->
+                    <div class="g_id_signin"
+	                	data-type="standard"
+	                	data-size="large"
+	                	data-theme="outline"
+	                	data-text="signin_with"
+	                	data-shape="rectangular"
+	                	data-logo_aliginment="left"></div>
+	                	
+                	<div id="g_id_onload"
+						data-client_id="283913695839-v3cgqt6dos1b67gbkj96nentlfiq3ggp.apps.googleusercontent.com"
+						data-callback="handleCredentialResponde"
+						data-auto_prompt="false">
+					</div>
+                </div>
+                
+                
+
+            <!-- </form> -->
+
+            <div id="msg" class="mt-3 text-center text-danger"></div>
+        </div>
+    </div>
+    
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <script>
+    	
+    	function handleCredentialResponde(response) {
+			console.log("TOKEN" + response.credential);
+			
+			fetch("/autenticar", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + response.credential,
+                    "loginGoole": "true"
+                }
+            }).then(async response => {
+                const resposta = await response.text();
+
+                if (!response.ok) {
+                    console.log(resposta);
+                    throw new Error(resposta);
+                }
+                return resposta;
+            }).then(data => {
+                //localStorage.setItem("token", data.token);
+                document.getElementById("msg").classList.remove("text-danger");
+                document.getElementById("msg").classList.add("text-success");
+                document.getElementById("msg").innerText = data;
+            }).catch(error => {
+                document.getElementById("msg").innerText = error.message;
+            });
+			
+   		}
+    
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("DOM carregado");
+            const btnLogin = document.getElementById("btnLogin");
+            const btnGoogle = document.getElementById("btnGoogle");
+
+            btnLogin.addEventListener("click", function (e) {
+                e.preventDefault();
+                fazerLogin();
+            });
+
+            function fazerLogin() {
+                const username = document.getElementById("username").value;
+                const password = document.getElementById("password").value;
+
+                fetch("/auth/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        userName: username,
+                        senha: password
+                    })
+                }).then(async response => {
+                    const resposta = await response.text();
+
+                    if (!response.ok) {
+                        console.log(resposta);
+                        throw new Error(resposta);
+                    }
+                    return JSON.parse(resposta);
+                }).then(data => {
+                    localStorage.setItem("token", data.token);
+                    document.getElementById("msg").classList.remove("text-danger");
+                    document.getElementById("msg").classList.add("text-success");
+                    document.getElementById("msg").innerText = "Login realizado com sucesso!";
+                }).catch(error => {
+                    document.getElementById("msg").innerText = error.message;
+                });
+            }
+
+           /*  btnGoogle.addEventListener("click", function (e) {
+                document.getElementById("msg").classList.add("text-success");
+                document.getElementById("msg").innerText = "Login GOOGLE realizado com sucesso!";
+            }); */
+        });
+
+
+        
+       </script>
+
+
+</body>
+
+</html>

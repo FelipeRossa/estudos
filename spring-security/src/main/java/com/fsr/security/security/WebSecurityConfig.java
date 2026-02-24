@@ -25,7 +25,8 @@ public class WebSecurityConfig {
 			 */
 
 			auth.requestMatchers("/novo-usuario").permitAll() //
-					.requestMatchers("/login").permitAll() //
+					.requestMatchers("/auth/login").permitAll() //
+					.requestMatchers("/login.html", "/css/**", "/js/**").permitAll()
 					.anyRequest().authenticated();
 
 		}).addFilterBefore(new AuthFilter(), UsernamePasswordAuthenticationFilter.class);

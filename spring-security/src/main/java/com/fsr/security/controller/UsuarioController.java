@@ -25,7 +25,7 @@ public class UsuarioController {
 		return ResponseEntity.status(201).body(service.addUsuario(userDto));
 	}
 
-	@PostMapping("/login")
+	@PostMapping("/auth/login")
 	public ResponseEntity<TokenRec> login(@RequestBody UsuarioDTO usuarioLogin) {
 
 		return ResponseEntity.status(200).body(service.userLogin(usuarioLogin));
